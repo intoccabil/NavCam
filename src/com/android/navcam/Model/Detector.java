@@ -15,15 +15,18 @@ import org.opencv.imgproc.Imgproc;
 import android.util.Log;
 
 public class Detector {
-	private static final String	TAG						= "NavCam::SignsDetector";
+	private static final String TAG = "NavCam::SignsDetector";
 
-	int							canny_threshold			= 200;
-	int							canny_threshold_linking	= 400;
+	int canny_threshold = 200;
+	int canny_threshold_linking = 400;
 
 	public Detector() {
 
 	}
 
+	// Method for blue signs detection. Segmentation -> Canny edge detection ->
+	// Contours acquisition -> Convex hull acquisition -> Approximation ->
+	// -> Recognition.
 	public Mat DetectBlueSigns(Mat image) {
 		Mat temp = new Mat();
 		Mat canny_blue = new Mat();
@@ -41,7 +44,7 @@ public class Detector {
 
 		temp.release();
 		temp = null;
-		
+
 		if (canny_blue != null) {
 			canny_blue.release();
 			canny_blue = null;
@@ -71,8 +74,6 @@ public class Detector {
 				hull = null;
 			}
 
-			// mat_hull.release();
-
 			if ((Imgproc.contourArea(mat_hull) > (image.size().width * image.size().height / 80)))
 			// && mat_hull.total() < 10) {
 			{
@@ -89,6 +90,8 @@ public class Detector {
 				// mat_hull2f = null;
 
 				good_contours.add(mat_hull);
+
+				// Can not release (getting exception) - why?
 
 				// if (mat_hull != null) {
 				// mat_hull.release();
@@ -124,7 +127,7 @@ public class Detector {
 
 		temp.release();
 		temp = null;
-		
+
 		if (canny_red != null) {
 			canny_red.release();
 			canny_red = null;
@@ -157,7 +160,12 @@ public class Detector {
 
 			// mat_hull.release();
 
-			if ((Imgproc.contourArea(contour) > (image.size().width * image.size().height / 80))) // && (Math.abs(contour.width() - contour.height()) < 30))
+			if ((Imgproc.contourArea(contour) > (image.size().width * image.size().height / 80))) // &&
+																									// (Math.abs(contour.width()
+																									// -
+																									// contour.height())
+																									// <
+																									// 30))
 			// && mat_hull.total() < 10) {
 			{
 				// MatOfPoint2f contour2f = new MatOfPoint2f();
@@ -180,11 +188,12 @@ public class Detector {
 				// }
 			}
 		}
-		
+
 		Mat result = new Mat(image.size(), CvType.CV_8UC1);
 
 		if (all_contours != null) {
-			//Imgproc.drawContours(image, good_contours, -1, new Scalar(255), 1);
+			// Imgproc.drawContours(image, good_contours, -1, new Scalar(255),
+			// 1);
 			Core.fillConvexPoly(image, good_contours.get(0), new Scalar(255, 255, 255));
 		}
 
