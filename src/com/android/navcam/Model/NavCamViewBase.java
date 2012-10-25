@@ -1,4 +1,4 @@
-package com.android.navcam.View;
+package com.android.navcam.Model;
 
 import java.util.List;
 

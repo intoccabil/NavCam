@@ -14,12 +14,14 @@ import android.view.MenuItem;
 import android.view.Window;
 import android.widget.EditText;
 
+import com.android.navcam.ViewModel.NavCamView;
+
 public class MainActivity extends Activity {
 	private static final String TAG = "NavCam::MainActivity";
 
 	private NavCamView mView;
 
-	enum ViewMode {
+	public enum ViewMode {
 		NORMAL, SEGMENTED, SIGNS, LIGHTS
 	};
 

@@ -1,4 +1,4 @@
-package com.android.navcam.View;
+package com.android.navcam.ViewModel;
 
 import org.opencv.android.Utils;
 import org.opencv.core.Mat;
@@ -11,12 +11,13 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 
 import com.android.navcam.Model.Detector;
+import com.android.navcam.Model.NavCamViewBase;
 import com.android.navcam.Model.Util;
+import com.android.navcam.View.MainActivity;
 
-class NavCamView extends NavCamViewBase {
+public class NavCamView extends NavCamViewBase {
     private static final String   TAG = "NavCam::View";
     private Mat                   mRgba;
-    //private Mat                   mDispFrame;
     
     private Detector sd;
 
@@ -29,7 +30,6 @@ class NavCamView extends NavCamViewBase {
         synchronized (this) {
             // initialize Mats before usage
             mRgba = new Mat();
-            //mDispFrame = new Mat();
             sd = new Detector();
         }
 
@@ -38,7 +38,6 @@ class NavCamView extends NavCamViewBase {
 
 	@Override
 	protected Bitmap processFrame(VideoCapture capture) {
-		//Bitmap bmp;
 		
 		switch (MainActivity.viewmode) {
 		case NORMAL:
@@ -78,11 +77,10 @@ class NavCamView extends NavCamViewBase {
         synchronized (this) {
             // Explicitly deallocate Mats
             if (mRgba != null)
+            {
                 mRgba.release();
-//            if (mDispFrame != null)
-//            	mDispFrame.release();
-
-            mRgba = null;
+                mRgba = null;
+            }
         }
     }
 }
