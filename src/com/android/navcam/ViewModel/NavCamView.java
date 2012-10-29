@@ -41,18 +41,18 @@ public class NavCamView extends NavCamViewBase {
 		
 		switch (MainActivity.viewmode) {
 		case NORMAL:
-			capture.retrieve(mRgba, Highgui.CV_CAP_ANDROID_COLOR_FRAME_RGBA);
+			capture.retrieve(mRgba, Highgui.CV_CAP_ANDROID_COLOR_FRAME_RGB); //CV_CAP_ANDROID_COLOR_FRAME_RGBA was guilty in drawing transparent contours! We don't need no transparency.
 			break;
 		case SEGMENTED:
-			capture.retrieve(mRgba, Highgui.CV_CAP_ANDROID_COLOR_FRAME_RGBA);
+			capture.retrieve(mRgba, Highgui.CV_CAP_ANDROID_COLOR_FRAME_RGB);
 			mRgba = Util.Segmentate(mRgba, MainActivity.hue);
 			break;
 		case SIGNS:
-			capture.retrieve(mRgba, Highgui.CV_CAP_ANDROID_COLOR_FRAME_RGBA);
+			capture.retrieve(mRgba, Highgui.CV_CAP_ANDROID_COLOR_FRAME_RGB);
 			mRgba = sd.DetectBlueSigns(mRgba);
 			break;
 		case LIGHTS:
-			capture.retrieve(mRgba, Highgui.CV_CAP_ANDROID_COLOR_FRAME_RGBA);
+			capture.retrieve(mRgba, Highgui.CV_CAP_ANDROID_COLOR_FRAME_RGB);
 			mRgba = sd.DetectRedLights(mRgba);
 			break;
 		}

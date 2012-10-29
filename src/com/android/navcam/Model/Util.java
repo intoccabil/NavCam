@@ -1,6 +1,7 @@
 package com.android.navcam.Model;
 
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
@@ -12,7 +13,7 @@ public class Util {
 	
 	public static Mat Segmentate(Mat image, int hue) {
 
-		Mat hsv_image = new Mat();
+		Mat hsv_image = new Mat(image.size(), CvType.CV_8UC1);
 
 		Imgproc.cvtColor(image, hsv_image, Imgproc.COLOR_RGB2HSV);
 
