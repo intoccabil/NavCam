@@ -1,0 +1,9 @@
+
+    <menu xmlns:android="http://schemas.android.com/apk/res/android">
+        <item android:id="@+id/vm_normal" android:title="Normal" android:titleCondensed="NML"></item>
+        <item android:id="@+id/vm_segmented" android:title="Segmented" android:titleCondensed="SGM"></item>
+        <item android:id="@+id/vm_tm_signs" android:title="TemplateMatching Signs" android:titleCondensed="TM Signs"></item>
+        <item android:id="@+id/vm_tmm_signs" android:title="TemplateMatchingModified Signs" android:titleCondensed="TMM Signs"></item>
+        <item android:id="@+id/vm_lights" android:title="Traffic Lights" android:titleCondensed="TL"></item>
+        <item android:id="@+id/vm_test" android:title="TEST" android:titleCondensed="TST"></item>
+    </menu>

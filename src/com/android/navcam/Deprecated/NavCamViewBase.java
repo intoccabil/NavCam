@@ -1,4 +1,4 @@
-package com.android.navcam.Model;
+package com.android.navcam.Deprecated;
 
 import java.util.List;
 
