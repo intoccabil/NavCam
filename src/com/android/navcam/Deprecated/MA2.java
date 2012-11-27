@@ -198,7 +198,7 @@ public class MA2 extends Activity {
 				e.printStackTrace();
 			}
 			
-			sd = new TM_SignsDetector(Signs, Filenames);
+			//sd = new TM_SignsDetector(Signs, Filenames);
 			
 			viewmode = ViewMode.TM_SIGNS;
 		}

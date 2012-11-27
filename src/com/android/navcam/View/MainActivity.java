@@ -1,31 +1,25 @@
 package com.android.navcam.View;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
+import org.opencv.android.Utils;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
-import org.opencv.android.Utils;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.highgui.Highgui;
-import org.opencv.utils.Converters;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
-import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Environment;
@@ -33,7 +27,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
 
@@ -54,18 +47,13 @@ public class MainActivity extends Activity implements CvCameraViewListener {
 
 	private List<Bitmap> Signs = new ArrayList<Bitmap>();
 	String[] Filenames;
+	
+	private List<Mat> TestImages = new ArrayList<Mat>();
 
 	private TM_SignsDetector tm_sd;
 	private TMM_SignsDetector tmm_sd;
 	private OrbSignsDetector so;
 	private TrafficLightsDetector tld;
-
-	// private MenuItem mItemPreviewNormal;
-	// private MenuItem mItemPreviewSegmented;
-	// private MenuItem mItemPreviewTMSigns;
-	// private MenuItem mItemPreviewTMMSigns;
-	// private MenuItem mItemPreviewLights;
-	// private MenuItem mItemPreviewSORB;
 
 	public static ViewMode viewMode = ViewMode.NORMAL;
 
@@ -102,7 +90,7 @@ public class MainActivity extends Activity implements CvCameraViewListener {
 	public void onCreate(Bundle savedInstanceState) {
 		Log.i(TAG, "called onCreate");
 		super.onCreate(savedInstanceState);
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		// requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 		setContentView(R.layout.main_view);
@@ -225,12 +213,11 @@ public class MainActivity extends Activity implements CvCameraViewListener {
 		}
 			break;
 		case R.id.vm_tm_signs: {
-			InitTemplatesDir("signs");
+			InitTemplatesDir("signs", true);
 
 			if (tm_sd == null)
 				tm_sd = new TM_SignsDetector(Signs, Filenames);
-			else
-			{
+			else {
 				tm_sd = null;
 				tm_sd = new TM_SignsDetector(Signs, Filenames);
 			}
@@ -239,12 +226,11 @@ public class MainActivity extends Activity implements CvCameraViewListener {
 		}
 			break;
 		case R.id.vm_tmm_signs:
-			InitTemplatesDir("signs");
+			InitTemplatesDir("signs", true);
 
 			if (tmm_sd == null)
 				tmm_sd = new TMM_SignsDetector(Signs, Filenames);
-			else
-			{
+			else {
 				tmm_sd = null;
 				tmm_sd = new TMM_SignsDetector(Signs, Filenames);
 			}
@@ -258,25 +244,23 @@ public class MainActivity extends Activity implements CvCameraViewListener {
 		}
 			break;
 		case R.id.vm_test: {
-			InitTemplatesDir("test2");
+			InitTemplatesDir("test", true);
 
 			viewMode = ViewMode.TEST;
-			
+
 			if (tm_sd == null)
 				tm_sd = new TM_SignsDetector(Signs, Filenames);
-			else
-			{
+			else {
 				tm_sd = null;
 				tm_sd = new TM_SignsDetector(Signs, Filenames);
 			}
-			
-			if (tmm_sd == null)
-				tmm_sd = new TMM_SignsDetector(Signs, Filenames);
-			else
-			{
-				tmm_sd = null;
-				tmm_sd = new TMM_SignsDetector(Signs, Filenames);
-			}
+
+//			if (tmm_sd == null)
+//				tmm_sd = new TMM_SignsDetector(Signs, Filenames);
+//			else {
+//				tmm_sd = null;
+//				tmm_sd = new TMM_SignsDetector(Signs, Filenames);
+//			}
 		}
 			break;
 		}
@@ -289,15 +273,40 @@ public class MainActivity extends Activity implements CvCameraViewListener {
 		switch (me.getAction()) {
 		case MotionEvent.ACTION_DOWN: {
 			if (viewMode == ViewMode.TEST) {
-				Mat temp = mRgba.clone();
+
+				InitTemplatesDir(Environment.getExternalStorageDirectory().getPath() + File.separator + "navcam" + File.separator
+						+ "src_images", false);
 				
-				Test test = new Test(tm_sd, temp);
-				Test test2 = new Test(tmm_sd, temp);
+				Thread threads[] = new Thread[Signs.size()];
+
+				for (int i = 0; i < Signs.size(); i++) {
+					
+					Mat temp = new Mat();
+					Utils.bitmapToMat(Signs.get(i), temp);
+
+					Log.i(TAG, "Test for " + Filenames[i] + " started!");
+					
+					//Test test = new Test(tm_sd, temp);
+					//test.run();
+					
+					threads[i] = new Thread(new Test(tm_sd, temp));
+					threads[i].start();
+				}
 				
-				Util.saveImage(temp, "test_screenshot");
+				Log.i(TAG, "All test threads launched!");
 				
-				test.runTest();
-				test2.runTest();
+//				for (int i = 0; i < threads.length; i++) {
+//					try {
+//						threads[i].join();
+//					} catch (InterruptedException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					}
+//				}
+//				
+//				Log.i(TAG, "All test threads finished!");
+				
+				
 			} else {
 				Util.saveImage(mRgba, "screenshot");
 			}
@@ -306,49 +315,57 @@ public class MainActivity extends Activity implements CvCameraViewListener {
 
 		return true;
 	}
-	
+
 	@Override
 	public boolean onTouchEvent(MotionEvent me) {
-		switch (me.getAction()) {
-		case MotionEvent.ACTION_DOWN: {
-			if (viewMode == ViewMode.TEST) {
-				Mat temp = mRgba.clone();
-				
-				Test test = new Test(tm_sd, temp);
-				Test test2 = new Test(tmm_sd, temp);
-				
-				Util.saveImage(temp, "test_screenshot");
-				
-				test.runTest();
-				test2.runTest();
-			} else {
-				Util.saveImage(mRgba, "screenshot");
-			}
-		}
-		}
-
+		onTrackballEvent(me);
+		
 		return true;
 	}
 
-	private void InitTemplatesDir(String dir) {
+	private void InitTemplatesDir(String dir, boolean assets) {
 		Signs.clear();
 
-		AssetManager am = getAssets();
+		if (assets) {
+			AssetManager am = getAssets();
 
-		try {
-			Filenames = am.list(dir);
-			for (int i = 0; i < Filenames.length; i++) {
-				Log.i(TAG, "File #" + i + " = " + Filenames[i]);
-				Log.i(TAG, "Path: " + dir + File.separator + Filenames[i]);
+			try {
+				Filenames = am.list(dir);
+				for (int i = 0; i < Filenames.length; i++) {
+					Log.i(TAG, "File #" + i + " = " + Filenames[i]);
+					Log.i(TAG, "Path: " + dir + File.separator + Filenames[i]);
 
-				InputStream is = am.open(dir + File.separator + Filenames[i]);
-				Bitmap b = BitmapFactory.decodeStream(is);
+					InputStream is = am.open(dir + File.separator + Filenames[i]);
+					Bitmap b = BitmapFactory.decodeStream(is);
 
-				Signs.add(b);
+					Signs.add(b);
+					
+					//b.recycle();
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} else {
+			try {
+				File sd_dir = new File(dir);
+				Filenames = sd_dir.list();
+				for (int i = 0; i < Filenames.length; i++) {
+					Log.i(TAG, "File #" + i + " = " + Filenames[i]);
+					Log.i(TAG, "Path: " + dir + File.separator + Filenames[i]);
+
+					//Mat m = Highgui.imread(sd_dir + File.separator + Filenames[i], Highgui.CV_LOAD_IMAGE_UNCHANGED);
+					// InputStream is = sd_dir.(dir + File.separator + Filenames[i]);
+					Bitmap b = BitmapFactory.decodeFile(sd_dir + File.separator + Filenames[i]);
+
+					Signs.add(b);
+					
+					//b.recycle();
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 }

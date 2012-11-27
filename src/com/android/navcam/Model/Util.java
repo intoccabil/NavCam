@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -33,11 +34,11 @@ public class Util {
 
 			int min_hue, max_hue;
 
-			min_hue = hue - 20;
+			min_hue = hue - 25;
 			if (min_hue < 0)
 				min_hue = 0;
 
-			max_hue = hue + 20;
+			max_hue = hue + 25;
 			if (max_hue > 180)
 				max_hue = 180;
 
@@ -54,12 +55,52 @@ public class Util {
 		return hsv_image;
 	}
 
+	public static void saveStats(String src, String filename) {
+		String state = Environment.getExternalStorageState();
+
+		if (Environment.MEDIA_MOUNTED.equals(state)) // SDcard is available
+		{
+			String _filename = filename + ".csv";
+			File dir = new File(Environment.getExternalStorageDirectory() + File.separator + "navcam");
+			dir.mkdirs();
+			File file = new File(dir, _filename);
+			FileOutputStream fos = null;
+
+			try {
+				fos = new FileOutputStream(file);
+			} catch (FileNotFoundException fnfe) {
+				// TODO Auto-generated catch block
+				fnfe.printStackTrace();
+			}
+
+			try {
+				if (src.length() > 0) {
+					OutputStreamWriter myOutWriter = new OutputStreamWriter(fos);
+					myOutWriter.write(src);
+
+					myOutWriter.flush();
+					myOutWriter.close();
+				}
+
+				fos.flush();
+				fos.close();
+
+				Log.d(TAG, "Written file" + _filename);
+			} catch (IOException e) {
+				e.printStackTrace();
+				// handle exception
+			}
+			
+			Log.i(TAG, "Stats saved!");
+		}
+	}
+	
 	public static void saveImage(Mat image, String filename) {
 		String state = Environment.getExternalStorageState();
 
 		if (Environment.MEDIA_MOUNTED.equals(state)) // SDcard is available
 		{
-			String _filename = "nc_" + filename  + "_" + Calendar.getInstance().getTime().getHours() + "-" + Calendar.getInstance().getTime().getMinutes() + ".png";
+			String _filename = "nc_" + filename + ".png";
 			File dir = new File(Environment.getExternalStorageDirectory() + File.separator + "navcam");
 			dir.mkdirs();
 			File file = new File(dir, _filename);
