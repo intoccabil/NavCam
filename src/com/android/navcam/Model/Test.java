@@ -23,7 +23,7 @@ public class Test implements Runnable {
 		synchronized (this) {
 			detector.detect(image);
 			Statistics = detector.getStats();
-
+		
 			long time = System.currentTimeMillis();
 			
 			Util.saveStats(Statistics, "test_result_" + time);

@@ -63,6 +63,7 @@ public class Util {
 			String _filename = filename + ".csv";
 			File dir = new File(Environment.getExternalStorageDirectory() + File.separator + "navcam");
 			dir.mkdirs();
+			
 			File file = new File(dir, _filename);
 			FileOutputStream fos = null;
 

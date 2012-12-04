@@ -7,10 +7,10 @@ import java.util.List;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
-import org.opencv.android.Utils;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
+import org.opencv.android.Utils;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.highgui.Highgui;
@@ -31,6 +31,7 @@ import android.view.WindowManager;
 import android.widget.EditText;
 
 import com.android.navcam.R;
+import com.android.navcam.Model.CM_SignsDetector;
 import com.android.navcam.Model.OrbSignsDetector;
 import com.android.navcam.Model.TMM_SignsDetector;
 import com.android.navcam.Model.TM_SignsDetector;
@@ -42,16 +43,17 @@ public class MainActivity extends Activity implements CvCameraViewListener {
 	private static final String TAG = "NavCam::MainActivity";
 
 	public enum ViewMode {
-		NORMAL, SEGMENTED, TM_SIGNS, TMM_SIGNS, LIGHTS, TEST // , SIGNS_ORB
+		NORMAL, SEGMENTED, TM_SIGNS, CM_SIGNS, LIGHTS, TEST // , SIGNS_ORB
 	};
 
 	private List<Bitmap> Signs = new ArrayList<Bitmap>();
 	String[] Filenames;
-	
-	private List<Mat> TestImages = new ArrayList<Mat>();
+
+	// private List<Mat> TestImages = new ArrayList<Mat>();
 
 	private TM_SignsDetector tm_sd;
 	private TMM_SignsDetector tmm_sd;
+	private CM_SignsDetector cm_sd;
 	private OrbSignsDetector so;
 	private TrafficLightsDetector tld;
 
@@ -143,12 +145,12 @@ public class MainActivity extends Activity implements CvCameraViewListener {
 			mRgba = tm_sd.detect(inputFrame);
 		}
 			break;
-		case TMM_SIGNS: {
-			mRgba = tmm_sd.detect(inputFrame);
+		case CM_SIGNS: {
+			mRgba = cm_sd.detect(inputFrame);
 		}
 			break;
 		case LIGHTS: {
-			mRgba = tld.DetectRedLights(inputFrame);
+			mRgba = tld.detect(inputFrame);
 		}
 			break;
 		case TEST: {
@@ -225,17 +227,17 @@ public class MainActivity extends Activity implements CvCameraViewListener {
 			viewMode = ViewMode.TM_SIGNS;
 		}
 			break;
-		case R.id.vm_tmm_signs:
+		case R.id.vm_cm_signs:
 			InitTemplatesDir("signs", true);
 
-			if (tmm_sd == null)
-				tmm_sd = new TMM_SignsDetector(Signs, Filenames);
+			if (cm_sd == null)
+				cm_sd = new CM_SignsDetector(Signs, Filenames);
 			else {
-				tmm_sd = null;
-				tmm_sd = new TMM_SignsDetector(Signs, Filenames);
+				cm_sd = null;
+				cm_sd = new CM_SignsDetector(Signs, Filenames);
 			}
 
-			viewMode = ViewMode.TMM_SIGNS;
+			viewMode = ViewMode.CM_SIGNS;
 			break;
 		case R.id.vm_lights: {
 			tld = new TrafficLightsDetector();
@@ -255,12 +257,19 @@ public class MainActivity extends Activity implements CvCameraViewListener {
 				tm_sd = new TM_SignsDetector(Signs, Filenames);
 			}
 
-//			if (tmm_sd == null)
-//				tmm_sd = new TMM_SignsDetector(Signs, Filenames);
-//			else {
-//				tmm_sd = null;
-//				tmm_sd = new TMM_SignsDetector(Signs, Filenames);
-//			}
+			// if (tmm_sd == null)
+			// tmm_sd = new TMM_SignsDetector(Signs, Filenames);
+			// else {
+			// tmm_sd = null;
+			// tmm_sd = new TMM_SignsDetector(Signs, Filenames);
+			// }
+
+			// if (cm_sd == null)
+			// cm_sd = new CM_SignsDetector(Signs, Filenames);
+			// else {
+			// cm_sd = null;
+			// cm_sd = new CM_SignsDetector(Signs, Filenames);
+			// }
 		}
 			break;
 		}
@@ -276,37 +285,36 @@ public class MainActivity extends Activity implements CvCameraViewListener {
 
 				InitTemplatesDir(Environment.getExternalStorageDirectory().getPath() + File.separator + "navcam" + File.separator
 						+ "src_images", false);
-				
-				Thread threads[] = new Thread[Signs.size()];
+
+				// Thread threads[] = new Thread[Signs.size()];
 
 				for (int i = 0; i < Signs.size(); i++) {
-					
+
 					Mat temp = new Mat();
 					Utils.bitmapToMat(Signs.get(i), temp);
 
 					Log.i(TAG, "Test for " + Filenames[i] + " started!");
-					
-					//Test test = new Test(tm_sd, temp);
-					//test.run();
-					
-					threads[i] = new Thread(new Test(tm_sd, temp));
-					threads[i].start();
+
+					// Test test = new Test(tm_sd, temp);
+					// test.run();
+
+					Test t = new Test(tm_sd, temp);
+					t.run();
 				}
-				
-				Log.i(TAG, "All test threads launched!");
-				
-//				for (int i = 0; i < threads.length; i++) {
-//					try {
-//						threads[i].join();
-//					} catch (InterruptedException e) {
-//						// TODO Auto-generated catch block
-//						e.printStackTrace();
-//					}
-//				}
-//				
-//				Log.i(TAG, "All test threads finished!");
-				
-				
+
+				Log.i(TAG, "All tests finished!");
+
+				// for (int i = 0; i < threads.length; i++) {
+				// try {
+				// threads[i].join();
+				// } catch (InterruptedException e) {
+				// // TODO Auto-generated catch block
+				// e.printStackTrace();
+				// }
+				// }
+				//
+				// Log.i(TAG, "All test threads finished!");
+
 			} else {
 				Util.saveImage(mRgba, "screenshot");
 			}
@@ -319,7 +327,7 @@ public class MainActivity extends Activity implements CvCameraViewListener {
 	@Override
 	public boolean onTouchEvent(MotionEvent me) {
 		onTrackballEvent(me);
-		
+
 		return true;
 	}
 
@@ -339,8 +347,8 @@ public class MainActivity extends Activity implements CvCameraViewListener {
 					Bitmap b = BitmapFactory.decodeStream(is);
 
 					Signs.add(b);
-					
-					//b.recycle();
+
+					// b.recycle();
 				}
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
@@ -354,13 +362,13 @@ public class MainActivity extends Activity implements CvCameraViewListener {
 					Log.i(TAG, "File #" + i + " = " + Filenames[i]);
 					Log.i(TAG, "Path: " + dir + File.separator + Filenames[i]);
 
-					//Mat m = Highgui.imread(sd_dir + File.separator + Filenames[i], Highgui.CV_LOAD_IMAGE_UNCHANGED);
+					// Mat m = Highgui.imread(sd_dir + File.separator + Filenames[i], Highgui.CV_LOAD_IMAGE_UNCHANGED);
 					// InputStream is = sd_dir.(dir + File.separator + Filenames[i]);
 					Bitmap b = BitmapFactory.decodeFile(sd_dir + File.separator + Filenames[i]);
 
 					Signs.add(b);
-					
-					//b.recycle();
+
+					// b.recycle();
 				}
 			} catch (Exception e) {
 				// TODO Auto-generated catch block

@@ -15,6 +15,7 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 
@@ -95,13 +96,14 @@ public class TM_SignsDetector implements Detector {
 	 */
 	public Mat detect(Mat image) {
 		Statistics = "";
-		
+
 		final long t_start = System.currentTimeMillis();
 		Statistics += "Stats for TM_SD at " + Calendar.getInstance().getTime() + "\n\n";
-		
-		//File dir = new File(Environment.getExternalStorageDirectory().getPath() + File.separator + "navcam" + File.separator + "logs" + File.separator);
-		//dir.mkdirs();
-		//Debug.startMethodTracing(dir.getPath());
+
+		// File dir = new File(Environment.getExternalStorageDirectory().getPath() + File.separator + "navcam" + File.separator + "logs" +
+		// File.separator);
+		// dir.mkdirs();
+		// Debug.startMethodTracing(dir.getPath());
 
 		Mat temp = new Mat();
 		Mat matching_result = new Mat();
@@ -112,7 +114,8 @@ public class TM_SignsDetector implements Detector {
 
 		temp = Util.segmentate(image, 105);
 
-		//Imgproc.medianBlur(temp, temp, 3);
+		Imgproc.medianBlur(temp, temp, 3);
+		Imgproc.dilate(temp, temp, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5)));
 
 		Imgproc.Canny(temp, temp, canny_threshold, canny_threshold_linking);
 
@@ -164,15 +167,23 @@ public class TM_SignsDetector implements Detector {
 				mat_hull.release();
 				mat_hull = null;
 			}
-			
-			if ((Imgproc.contourArea(mat_hull_approximated) > (image.size().width * image.size().height / 90))
-					&& mat_hull_approximated.total() == 4) {
+
+			int width = Imgproc.boundingRect(mat_hull_approximated).width;
+			int height = Imgproc.boundingRect(mat_hull_approximated).height;
+
+			if ((Imgproc.contourArea(mat_hull_approximated) > (image.size().area() * 0.01))
+					&& Math.abs(width - height) < ((width + height) * 0.1) && mat_hull_approximated.total() == 4) {
 
 				for (int i = 0; i < mat_hull_approximated.total(); i++) {
-					Log.d(TAG, 
-							"Point " + i + ": " +
-							Double.toString(mat_hull_approximated.get(i, 0)[0]) + " " + Double.toString(mat_hull_approximated.get(i, 0)[1]));
-					Log.d(TAG, "Angle " + i + ": " + Float.toString(Core.fastAtan2((float) mat_hull_approximated.get(i, 0)[1], (float) mat_hull_approximated.get(i, 0)[0])));
+					Log.d(TAG,
+							"Point " + i + ": " + Double.toString(mat_hull_approximated.get(i, 0)[0]) + " "
+									+ Double.toString(mat_hull_approximated.get(i, 0)[1]));
+					Log.d(TAG,
+							"Angle "
+									+ i
+									+ ": "
+									+ Float.toString(Core.fastAtan2((float) mat_hull_approximated.get(i, 0)[1],
+											(float) mat_hull_approximated.get(i, 0)[0])));
 				}
 
 				good_contours.add(mat_hull_approximated);
@@ -182,20 +193,20 @@ public class TM_SignsDetector implements Detector {
 
 				for (int i = 0; i < _SignTemplates.size(); i++) {
 					final long recog_start = System.currentTimeMillis();
-					
+
 					Imgproc.resize(image.submat(Imgproc.boundingRect(mat_hull_approximated)), extracted_sign, _SignTemplates.get(i).size());
 					Imgproc.cvtColor(extracted_sign, extracted_sign, Imgproc.COLOR_RGBA2GRAY);
-					//Imgproc.threshold(extracted_sign, extracted_sign, 150, 255, Imgproc.THRESH_BINARY);
+					// Imgproc.threshold(extracted_sign, extracted_sign, 150, 255, Imgproc.THRESH_BINARY);
 
 					Mat thresholded_sign = new Mat();
 					thresholded_sign = _SignTemplates.get(i);
-					//Imgproc.cvtColor(thresholded_sign, thresholded_sign, Imgproc.COLOR_RGBA2GRAY);
-					
-					//Imgproc.threshold(_SignTemplates.get(i), thresholded_sign, 150, 255, Imgproc.THRESH_BINARY);
-					//Imgproc.cvtColor(thresholded_sign, thresholded_sign, Imgproc.COLOR_GRAY2RGB);
+					// Imgproc.cvtColor(thresholded_sign, thresholded_sign, Imgproc.COLOR_RGBA2GRAY);
+
+					// Imgproc.threshold(_SignTemplates.get(i), thresholded_sign, 150, 255, Imgproc.THRESH_BINARY);
+					// Imgproc.cvtColor(thresholded_sign, thresholded_sign, Imgproc.COLOR_GRAY2RGB);
 
 					Imgproc.matchTemplate(extracted_sign, thresholded_sign, matching_result, Imgproc.TM_CCORR_NORMED);
-					
+
 					Log.w(TAG, _SignNames[i] + ": " + matching_result.get(0, 0)[0]);
 
 					if (matching_result.get(0, 0)[0] > max_corr) {
@@ -207,10 +218,10 @@ public class TM_SignsDetector implements Detector {
 					Log.i(TAG, Long.toString(recog_end) + "ms recog time for " + _SignNames[i]);
 
 					Statistics += _SignTemplates.get(i).size().width + ";" + recog_end + ";" + matching_result.get(0, 0)[0] + "\n";
-					//Util.saveImage(image, "tm_sd_" + i);
+					// Util.saveImage(image, "tm_sd_" + i);
 				}
 
-				if (max_corr >= 0.75) {
+				if (max_corr >= 0.9) {
 					Core.putText(image.submat(Imgproc.boundingRect(mat_hull_approximated)), _SignNames[num].split("\\.(?=[^\\.]+$)")[0],
 							new Point(5, 20), Core.FONT_HERSHEY_COMPLEX, 0.3, new Scalar(255, 255, 0, 255));
 					Core.putText(image.submat(Imgproc.boundingRect(mat_hull_approximated)), String.format("%.3f", max_corr), new Point(5,
@@ -231,8 +242,8 @@ public class TM_SignsDetector implements Detector {
 		final long t_end = System.currentTimeMillis() - t_start;
 		Log.i(TAG, Long.toString(t_end) + "ms");
 		Statistics += "\n" + "Overall elapsed " + t_end + " ms\n\n";
-		
-		//Debug.stopMethodTracing();
+
+		// Debug.stopMethodTracing();
 
 		return image;
 	}
@@ -240,7 +251,7 @@ public class TM_SignsDetector implements Detector {
 	public String getStats() {
 		if (Statistics.length() > 0) {
 			return Statistics;
-		}
-		else return "No stats!";
+		} else
+			return "No stats!";
 	}
 }

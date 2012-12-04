@@ -69,7 +69,7 @@ public class NavCamView extends NavCamViewBase {
 			break;
 		case LIGHTS:
 			capture.retrieve(mRgba, Highgui.CV_CAP_ANDROID_COLOR_FRAME_RGB);
-			mRgba = tld.DetectRedLights(mRgba);
+			mRgba = tld.detect(mRgba);
 			break;
 //		case SIGNS_ORB:
 //			capture.retrieve(mRgba, Highgui.CV_CAP_ANDROID_COLOR_FRAME_RGB);
