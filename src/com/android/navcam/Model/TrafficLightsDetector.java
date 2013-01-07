@@ -33,7 +33,7 @@ public class TrafficLightsDetector implements Detector {
 		List<MatOfPoint> all_contours = new ArrayList<MatOfPoint>();
 		List<MatOfPoint> good_contours = new ArrayList<MatOfPoint>();
 
-		temp = Util.segmentate(image, 0);
+		temp = Util.segmentate(image, 160);
 
 		Imgproc.medianBlur(temp, temp, 5);
 
@@ -49,7 +49,7 @@ public class TrafficLightsDetector implements Detector {
 
 		for (MatOfPoint contour : all_contours) {
 
-			if (contour.total() > 25) {
+			if (contour.total() > 10) {
 
 				MatOfPoint2f contour2f = new MatOfPoint2f();
 				contour.convertTo(contour2f, CvType.CV_32FC2);
@@ -60,11 +60,13 @@ public class TrafficLightsDetector implements Detector {
 
 				temp.submat(Imgproc.boundingRect(contour)).copyTo(extracted_sign);
 				Scalar mean = Core.mean(extracted_sign);
+				Log.i(TAG, "barea = " + br.boundingRect().area());
+				Log.i(TAG, "carea = " + Imgproc.contourArea(contour));
 
-				if (Imgproc.contourArea(contour) > image.size().area() * 0.001 && mean.val[0] > 150
+				if (Imgproc.contourArea(contour) > image.size().area() * 0.01 && mean.val[0] > 150
 						&& Math.abs(br.size.width - br.size.height) < (br.size.width + br.size.height) * 0.3) {
 
-					Core.ellipse(image, Imgproc.fitEllipse(contour2f), new Scalar(255, 255, 0, 255), -1);
+					Core.ellipse(image, br, new Scalar(255, 255, 0, 255), -1);
 				}
 			}
 		}

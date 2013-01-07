@@ -26,12 +26,16 @@ public class TM_SignsDetector implements Detector {
 	private static final String TAG = "NavCam::TM_SD";
 
 	private String Statistics;
+	
+	public boolean detected;
 
 	int canny_threshold = 200;
 	int canny_threshold_linking = 400;
 
 	List<Mat> _SignTemplates = new ArrayList<Mat>();
 	String[] _SignNames;
+	
+	Mat _image = new Mat();
 
 	/**
 	 * This class implements a traffic signs detector based on template matching.
@@ -95,6 +99,7 @@ public class TM_SignsDetector implements Detector {
 	 * @return Output image with signs boundaries, names and correlation quotient drawn on it
 	 */
 	public Mat detect(Mat image) {
+		detected = false;
 		Statistics = "";
 
 		final long t_start = System.currentTimeMillis();
@@ -222,6 +227,7 @@ public class TM_SignsDetector implements Detector {
 				}
 
 				if (max_corr >= 0.9) {
+					detected = true;
 					Core.putText(image.submat(Imgproc.boundingRect(mat_hull_approximated)), _SignNames[num].split("\\.(?=[^\\.]+$)")[0],
 							new Point(5, 20), Core.FONT_HERSHEY_COMPLEX, 0.3, new Scalar(255, 255, 0, 255));
 					Core.putText(image.submat(Imgproc.boundingRect(mat_hull_approximated)), String.format("%.3f", max_corr), new Point(5,

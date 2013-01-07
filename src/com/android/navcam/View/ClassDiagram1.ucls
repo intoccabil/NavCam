@@ -34,7 +34,7 @@
   </class>  
   <class id="5" corner="BOTTOM_RIGHT" language="java" name="com.android.navcam.Model.Util" project="NavCam" 
     file="/NavCam/src/com/android/navcam/Model/Util.java" binary="false">    
-    <position height="-1" width="-1" x="154" y="345"/>    
+    <position height="-1" width="-1" x="108" y="321"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true"/>      
       <operations public="true" package="true" protected="true" private="true"/>    
@@ -50,34 +50,46 @@
   </class>  
   <class id="7" corner="BOTTOM_RIGHT" language="java" name="com.android.navcam.Model.TrafficLightsDetector" 
     project="NavCam" file="/NavCam/src/com/android/navcam/Model/TrafficLightsDetector.java" binary="false">    
-    <position height="-1" width="-1" x="729" y="352"/>    
+    <position height="-1" width="-1" x="734" y="593"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true"/>      
       <operations public="true" package="true" protected="true" private="true"/>    
     </display>  
   </class>  
-  <association id="8">    
-    <bendpoint x="260" y="218"/>    
-    <end type="SOURCE" refId="1" navigable="false">      
-      <attribute id="9" name="viewMode"/>      
-      <multiplicity id="10" minimum="0" maximum="1"/>    
-    </end>    
-    <end type="TARGET" refId="2" navigable="true"/>    
-    <display labels="true" multiplicity="true"/>  
-  </association>  
-  <realization id="11">    
+  <class id="8" corner="BOTTOM_RIGHT" language="java" name="com.android.navcam.Model.Beeper" project="NavCam" 
+    file="/NavCam/src/com/android/navcam/Model/Beeper.java" binary="false">    
+    <position height="-1" width="-1" x="140" y="526"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <class id="9" corner="BOTTOM_RIGHT" language="java" name="com.android.navcam.Model.CM_SignsDetector" project="NavCam" 
+    file="/NavCam/src/com/android/navcam/Model/CM_SignsDetector.java" binary="false">    
+    <position height="-1" width="-1" x="724" y="358"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true"/>      
+      <operations public="true" package="true" protected="true" private="true"/>    
+    </display>  
+  </class>  
+  <realization id="10">    
     <end type="SOURCE" refId="4"/>    
     <end type="TARGET" refId="3"/>  
   </realization>  
+  <realization id="11">    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="3"/>  
+  </realization>  
   <association id="12">    
-    <end type="SOURCE" refId="6" navigable="false">      
-      <attribute id="13" name="detector"/>      
+    <end type="SOURCE" refId="1" navigable="false">      
+      <attribute id="13" name="b"/>      
       <multiplicity id="14" minimum="0" maximum="1"/>    
     </end>    
-    <end type="TARGET" refId="3" navigable="true"/>    
+    <end type="TARGET" refId="8" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
   <association id="15">    
+    <bendpoint x="517" y="528"/>    
     <end type="SOURCE" refId="1" navigable="false">      
       <attribute id="16" name="tld"/>      
       <multiplicity id="17" minimum="0" maximum="1"/>    
@@ -85,22 +97,47 @@
     <end type="TARGET" refId="7" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
-  <realization id="18">    
-    <end type="SOURCE" refId="7"/>    
+  <nesting id="18">    
+    <end type="SOURCE" refId="1"/>    
+    <end type="TARGET" refId="2"/>  
+  </nesting>  
+  <association id="19">    
+    <end type="SOURCE" refId="6" navigable="false">      
+      <attribute id="20" name="detector"/>      
+      <multiplicity id="21" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="3" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="22">    
+    <end type="SOURCE" refId="1" navigable="false">      
+      <attribute id="23" name="cm_sd"/>      
+      <multiplicity id="24" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="9" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <realization id="25">    
+    <end type="SOURCE" refId="9"/>    
     <end type="TARGET" refId="3"/>  
   </realization>  
-  <association id="19">    
+  <association id="26">    
+    <bendpoint x="260" y="218"/>    
     <end type="SOURCE" refId="1" navigable="false">      
-      <attribute id="20" name="tm_sd"/>      
-      <multiplicity id="21" minimum="0" maximum="1"/>    
+      <attribute id="27" name="viewMode"/>      
+      <multiplicity id="28" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="2" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="29">    
+    <end type="SOURCE" refId="1" navigable="false">      
+      <attribute id="30" name="tm_sd"/>      
+      <multiplicity id="31" minimum="0" maximum="1"/>    
     </end>    
     <end type="TARGET" refId="4" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
-  <nesting id="22">    
-    <end type="SOURCE" refId="1"/>    
-    <end type="TARGET" refId="2"/>  
-  </nesting>  
   <classifier-display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
     visibility="true">    
     <attributes public="true" package="true" protected="true" private="true"/>    

@@ -17,7 +17,6 @@ import android.graphics.BitmapFactory;
 import android.util.Log;
 import android.view.SurfaceHolder;
 
-import com.android.navcam.Model.OrbSignsDetector;
 import com.android.navcam.Model.TM_SignsDetector;
 import com.android.navcam.Model.TrafficLightsDetector;
 import com.android.navcam.Model.Util;

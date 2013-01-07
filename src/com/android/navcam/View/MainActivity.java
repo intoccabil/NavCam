@@ -21,6 +21,9 @@ import android.content.DialogInterface;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -31,8 +34,9 @@ import android.view.WindowManager;
 import android.widget.EditText;
 
 import com.android.navcam.R;
+import com.android.navcam.Deprecated.OrbSignsDetector;
+import com.android.navcam.Model.Beeper;
 import com.android.navcam.Model.CM_SignsDetector;
-import com.android.navcam.Model.OrbSignsDetector;
 import com.android.navcam.Model.TMM_SignsDetector;
 import com.android.navcam.Model.TM_SignsDetector;
 import com.android.navcam.Model.Test;
@@ -46,10 +50,12 @@ public class MainActivity extends Activity implements CvCameraViewListener {
 		NORMAL, SEGMENTED, TM_SIGNS, CM_SIGNS, LIGHTS, TEST // , SIGNS_ORB
 	};
 
+	Beeper b;
+	Ringtone r;
 	private List<Bitmap> Signs = new ArrayList<Bitmap>();
 	String[] Filenames;
-
-	// private List<Mat> TestImages = new ArrayList<Mat>();
+	
+	
 
 	private TM_SignsDetector tm_sd;
 	private TMM_SignsDetector tmm_sd;
@@ -99,6 +105,9 @@ public class MainActivity extends Activity implements CvCameraViewListener {
 
 		mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.main_activity_surface_view);
 		mOpenCvCameraView.setCvCameraViewListener(this);
+		
+		InitRingtones();
+		b = new Beeper();
 	}
 
 	@Override
@@ -143,6 +152,11 @@ public class MainActivity extends Activity implements CvCameraViewListener {
 			break;
 		case TM_SIGNS: {
 			mRgba = tm_sd.detect(inputFrame);
+			
+			if(tm_sd.detected)
+			{
+				b.Beep(r);
+			}
 		}
 			break;
 		case CM_SIGNS: {
@@ -250,12 +264,12 @@ public class MainActivity extends Activity implements CvCameraViewListener {
 
 			viewMode = ViewMode.TEST;
 
-			if (tm_sd == null)
-				tm_sd = new TM_SignsDetector(Signs, Filenames);
-			else {
-				tm_sd = null;
-				tm_sd = new TM_SignsDetector(Signs, Filenames);
-			}
+//			if (tm_sd == null)
+//				tm_sd = new TM_SignsDetector(Signs, Filenames);
+//			else {
+//				tm_sd = null;
+//				tm_sd = new TM_SignsDetector(Signs, Filenames);
+//			}
 
 			// if (tmm_sd == null)
 			// tmm_sd = new TMM_SignsDetector(Signs, Filenames);
@@ -264,12 +278,12 @@ public class MainActivity extends Activity implements CvCameraViewListener {
 			// tmm_sd = new TMM_SignsDetector(Signs, Filenames);
 			// }
 
-			// if (cm_sd == null)
-			// cm_sd = new CM_SignsDetector(Signs, Filenames);
-			// else {
-			// cm_sd = null;
-			// cm_sd = new CM_SignsDetector(Signs, Filenames);
-			// }
+			 if (cm_sd == null)
+			 cm_sd = new CM_SignsDetector(Signs, Filenames);
+			 else {
+			 cm_sd = null;
+			 cm_sd = new CM_SignsDetector(Signs, Filenames);
+			 }
 		}
 			break;
 		}
@@ -298,7 +312,7 @@ public class MainActivity extends Activity implements CvCameraViewListener {
 					// Test test = new Test(tm_sd, temp);
 					// test.run();
 
-					Test t = new Test(tm_sd, temp);
+					Test t = new Test(cm_sd, temp);
 					t.run();
 				}
 
@@ -316,7 +330,7 @@ public class MainActivity extends Activity implements CvCameraViewListener {
 				// Log.i(TAG, "All test threads finished!");
 
 			} else {
-				Util.saveImage(mRgba, "screenshot");
+				Util.saveImage(mRgba, "screenshot" + System.currentTimeMillis());
 			}
 		}
 		}
@@ -375,5 +389,10 @@ public class MainActivity extends Activity implements CvCameraViewListener {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	private void InitRingtones() {
+		Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+		r = RingtoneManager.getRingtone(getApplicationContext(), notification);
 	}
 }

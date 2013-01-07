@@ -1,6 +1,6 @@
 // TODO Refactor the whole class (might raise the performance)
 
-package com.android.navcam.Model;
+package com.android.navcam.Deprecated;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +26,8 @@ import org.opencv.features2d.Features2d;
 import org.opencv.imgproc.Imgproc;
 
 import org.opencv.ml.*;
+
+import com.android.navcam.Model.Util;
 
 import android.content.pm.FeatureInfo;
 import android.graphics.Bitmap;
